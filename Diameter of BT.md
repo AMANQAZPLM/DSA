@@ -24,7 +24,7 @@ struct Node
         data = x;
         left = right = NULL;
     }
-}; */
+};
 
 class Solution {
   public:
