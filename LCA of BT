@@ -1,0 +1,143 @@
+# Lowest Common Ancestor of a Binary Tree ([LeetCode](https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/))
+Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.
+
+According to the [definition of LCA on Wikipedia](https://en.wikipedia.org/wiki/Lowest_common_ancestor): “The lowest common ancestor is defined between two nodes `p` and `q` as the lowest node in `T` that has both `p` and `q` as descendants (where we allow **a node to be a descendant of itself**).”
+
+**Input:** root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+**Output:** 3
+**Explanation:** The LCA of nodes 5 and 1 is 3.
+
+## Solution : 
+
+ 1. **There can be 2 cases:** 
+- **p and q are in different subtree** 
+- **p and q are in same subtree in this cases p or q whichever is the parent becomes LCA like in 4-5-7 p=4 and q=7 here LCA is 4**
+ 2. **If p and q are in left and right subtree of root the it is the LCA
+    If root is NULL return NULL.**
+ 3. **If p or q is found then we return that root as other returns NULL so
+    no ans is found**
+
+```cpp
+class Solution {
+    TreeNode* lca(TreeNode* root,TreeNode* p, TreeNode* q){
+        if(root==NULL){
+            return NULL;
+        }
+        
+        if(root->val == p->val || root->val == q->val){ // if p or q is found we return that root
+            return root;
+        }
+        
+        TreeNode* leftans = lca(root->left,p,q);  // check in left subtree
+        TreeNode* rightans = lca(root->right,p,q); // check in right subtree
+        
+        if(leftans!=NULL and rightans!=NULL){  // if we have a root with p and q in differnt subtree that is the lca
+            return root; // so return the root
+        }
+        
+        if(leftans!=NULL){   // if left of root returns not NULL but the right does we just return the left
+            return leftans;  // as ans is not found in that root
+        }
+        else{
+            return rightans;
+        }
+    }
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        return lca(root,p,q);
+    }
+};
+```
+
+# Step-By-Step Directions From a Binary Tree Node to Another ([LeetCode](https://leetcode.com/problems/step-by-step-directions-from-a-binary-tree-node-to-another/))
+You are given the `root` of a **binary tree** with `n` nodes. Each node is uniquely assigned a value from `1` to `n`. You are also given an integer `startValue` representing the value of the start node `s`, and a different integer `destValue` representing the value of the destination node `t`.
+
+Find the **shortest path** starting from node `s` and ending at node `t`. Generate step-by-step directions of such path as a string consisting of only the **uppercase** letters `'L'`, `'R'`, and `'U'`. Each letter indicates a specific direction:
+
+-   `'L'` means to go from a node to its **left child** node.
+-   `'R'` means to go from a node to its **right child** node.
+-   `'U'` means to go from a node to its **parent** node.
+
+Return _the step-by-step directions of the **shortest path** from node_ `s` _to node_ `t`
+
+### Solution:
+Find the start value and store directions in string sl
+Find the target value and store the directions in string st
+Now we know that we have to find the direction from start to target so change the direction to reach start value in sl to all "U" so the we can know that we have to move up to the parent from the start value.
+```cpp
+class Solution {
+    string s;
+    TreeNode* lca(TreeNode* root,int sv,int dv){
+        if(root==NULL){
+            return NULL;
+        }
+
+        if(root->val==sv || root->val==dv){
+            return root;
+        }
+
+        TreeNode* left = lca(root->left, sv,dv);
+        TreeNode* right = lca(root->right, sv,dv);
+
+        if(left!=NULL && right!=NULL){
+            return root;
+        }
+
+        if(left!=NULL){
+            return left;
+        }
+        else{
+            return right;
+        }
+    }
+
+    bool dfs(TreeNode* root, int target, string &s){
+        if(root==NULL){
+            return false;
+        }
+
+        if(root->val == target){
+            return true;
+        }
+
+        s.push_back('L');
+        if(dfs(root->left,target,s)){
+            return true;
+        }
+        s.pop_back(); // backtrack if target not found in the path
+
+        s.push_back('R');
+        if(dfs(root->right,target,s)){
+            return true;
+        }
+        s.pop_back(); // backtrack if target not found in the path
+
+        return false;
+    }
+
+public:
+    string getDirections(TreeNode* root, int startValue, int destValue) {
+        TreeNode* node = lca(root,startValue,destValue);
+
+        string sl = "";
+        string sr = "";
+
+        dfs(node, startValue, sl);
+        dfs(node, destValue, sr);
+
+        for(int i=0;i<sl.length();i++){
+            sl[i] = 'U';
+        }
+
+        return sl+sr;
+
+    }
+};
+```
+### Note
+> for(auto x: sl){
+>             x = 'U';
+>         } 
+>         Gives error because we need auto &
+>          [auto &](https://stackoverflow.com/questions/29859796/c-auto-vs-auto)
+

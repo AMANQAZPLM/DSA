@@ -1,0 +1,179 @@
+# Height of the Binary Tree From Inorder and Level Order Traversal ([Coding Ninjas](https://www.codingninjas.com/codestudio/problems/calculate-the-height-of-binary-tree-using-inorder-and-level-order-traversal_841416?topList=love-babbar-dsa-sheet-problems&leftPanelTab=0))
+You have been given the Inorder Traversal and Level Order Traversal of a Binary Tree of integers. Your task is to calculate the height of the Binary tree without constructing it. The height of the binary tree is the number of edges in the longest path from the root node to any leaf node in the tree. In case the tree has only one node, the height is taken to be 0.
+##### Sample Input 1:
+```
+1
+5
+4 2 5 1 3
+1 2 3 4 5    o/p = 2
+```
+
+## Solution 1: O(N**2)
+```cpp
+/*
+    Time Complexity: O(N^2)
+    Space Complexity: O(N)
+    
+    Where N is the total number of nodes in the binary tree.
+*/
+
+typedef struct Node{
+
+	// Height stores the height of the current subtree
+	int height;
+	int leftIndex;
+	int rightIndex;
+}
+Node;
+
+#include <queue>
+
+int heightOfTheTree(vector<int>& inorder, vector<int>& levelOrder, int N){
+	queue< Node > q;
+
+	Node init;
+
+	init.height = 0;
+	init.leftIndex = 0;
+	init.rightIndex = N - 1;
+
+	q.push(init);
+
+	int maxHeight = 0;
+
+	for(int i = 0; i < N; i++){
+		int curr = levelOrder[i];
+
+		Node now = q.front();
+
+		q.pop();
+
+		int currPos;
+
+		/* 
+			Iterating from leftIndex to rightIndex to find the position of
+		   leveOrder[i] in the inorder array. 
+		*/
+		for(int j = now.leftIndex; j <= now.rightIndex; j++){
+			if(levelOrder[i] == inorder[j]){
+				currPos = j;
+			}
+		}
+		
+		// There is a left child present.
+		if(currPos > now.leftIndex){
+			Node newNode;
+
+			// Height will increase by 1, as we are descending 1 level downwards in the tree.
+			newNode.height = now.height+1;
+
+			maxHeight = max(maxHeight, newNode.height);
+
+			// New borders of the left subtree in the inorder array.
+			newNode.leftIndex = now.leftIndex;
+			newNode.rightIndex = currPos-1;
+
+			q.push(newNode);
+		}
+
+		// There is a right child present.
+		if(currPos < now.rightIndex){
+			Node newNode;
+
+			newNode.height=now.height+1;
+
+			maxHeight = max(maxHeight, newNode.height);
+
+			// New borders of the right subtree in the inorder array.
+			newNode.leftIndex = currPos+1;
+			newNode.rightIndex = now.rightIndex;
+
+			q.push(newNode);
+		}
+	}
+	return maxHeight;
+}
+```
+## Solution 2: O(N)
+Store the position in an array. 
+pos[inorder[i]] = i means that at inorder[i] position store i and if levelorder[j] = inorder[i] then they will have same value in the array pos.
+
+```cpp
+/*
+    Time Complexity: O(N)
+    Space Complexity: O(N)
+
+    Where N is the total number of nodes in the binary tree.
+*/
+typedef struct Node{
+
+	// Height stores the height of the current subtree.
+	int height;
+	int leftIndex;
+	int rightIndex;
+} 
+Node;
+
+#include <queue>
+
+int heightOfTheTree(vector<int>& inorder, vector<int>& levelOrder, int N){
+	queue<Node> q;
+	Node init;
+
+	init.height = 0;
+	init.leftIndex = 0;
+	init.rightIndex = N - 1;
+
+	q.push(init);
+      
+	int pos[N+1];
+
+	for(int i = 0; i < N; i++){
+		pos[inorder[i]] = i;
+	}
+
+	int maxHeight = 0;
+
+	for(int i = 0; i < N; i++){
+		int curr = levelOrder[i];
+
+		Node now = q.front();
+
+		q.pop();
+
+		// Position of levelOrder[i] in the inorder array. 
+		int currPos = pos[levelOrder[i]];
+		
+		// There is a left child present.
+		if(currPos > now.leftIndex){
+			Node newNode;
+
+			// Height will increase by 1 as we are descending 1 level downwards in the tree.
+			newNode.height = now.height + 1;
+
+			maxHeight = max(maxHeight, newNode.height);
+
+			// New borders of the left subtree in the inorder array.
+			newNode.leftIndex = now.leftIndex;
+			newNode.rightIndex = currPos - 1;
+
+			q.push(newNode);
+		}
+
+		// There is a right child present.
+		if(currPos < now.rightIndex){
+			Node newNode;
+			newNode.height = now.height + 1;
+			maxHeight = max(maxHeight, newNode.height);
+
+			// New borders of the right subtree in the inorder array.
+			newNode.leftIndex = currPos + 1;
+			newNode.rightIndex = now.rightIndex;
+
+			q.push(newNode);
+		}
+	}
+
+	return maxHeight;
+}
+```

@@ -1,0 +1,38 @@
+# Binary Tree Right or Left View ([GFG](https://practice.geeksforgeeks.org/problems/left-view-of-binary-tree/1))
+Given the `root` of a binary tree, imagine yourself standing on the **right side** of it, return _the values of the nodes you can see ordered from top to bottom_.
+
+**Input:** root = [1,2,3,null,5,null,4]
+**Output:** [1,3,4]
+
+## Solution:
+ 1. For right view access right child first then the left child.
+ 2. Keep a level and maxlevel to know the current level and max till
+    now.
+ 3. If maxlevel is less than level this means we are at a new level and
+    need to update the current maxlevel.
+
+```cpp
+// Time  - O(N) and Space - O(1)
+class Solution {
+    vector<int> ans;
+    void rsv(TreeNode *root, int level,int &maxlevel){
+        if(root==NULL){
+            return;
+        }
+
+        if(maxlevel<level){
+            ans.push_back(root->val);
+            maxlevel = level;
+        }
+
+        rsv(root->right, level+1, maxlevel); // for left view left child should be accessed first
+        rsv(root->left, level+1,maxlevel);
+    }
+public:
+    vector<int> rightSideView(TreeNode* root) {
+        int maxlevel = -1;
+        rsv(root,0,maxlevel);
+        return ans;
+    }
+};
+```
