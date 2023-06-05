@@ -1,0 +1,96 @@
+# All Nodes Distance K in Binary Tree ([LeetCode](https://leetcode.com/problems/all-nodes-distance-k-in-binary-tree/description/))
+Given the `root` of a binary tree, the value of a target node `target`, and an integer `k`, return _an array of the values of all nodes that have a distance_ `k` _from the target node._
+
+You can return the answer in **any order**.
+
+**Input:** root = [3,5,1,6,2,0,8,null,null,7,4], target = 5, k = 2
+**Output:** [7,4,1]
+Explanation: The nodes that are a distance 2 from the target node (with value 5) have values 7, 4, and 1.
+
+
+## Solution:
+
+ 1. **Nodes K level lower than the target are at Kth distance. We can make
+    a function to find nodes at kth level from root**
+ 2. **To find upper nodes make a recursive function which returns the
+    distance of current node from the target If target is the current
+    node then distance is 0**
+ 3. **For lower nodes we call lowert()**
+ 4. **For upper nodes we check if the node is kth distance from target or
+    its other subtree, for that we return the value of k as k-2-ut as 2
+    edges have been traveled from targert-root-new node.**
+ 5. **ut is the distance returned from the previous node it have the
+    distance of previous node to the target. Finally we return 1+ut
+    (incrementing 1 distance from the target)**
+ 6. **We do the same for the left subtree**
+ 7. **Return -1 is target no present**
+
+```cpp
+class Solution {
+    vector<int> ans;
+    void lowert(TreeNode* root, int k){  // for finding node at k level
+        if(root==NULL){
+            return;
+        }
+        
+        if(k==0){
+            ans.push_back(root->val);
+            return;
+        }
+        
+        lowert(root->left,k-1);
+        lowert(root->right,k-1);
+        return;
+    }
+    
+    int uppert(TreeNode* root,TreeNode* target,int k){  // for upper nodes and different subtree nodes of target
+        if(root==NULL){
+            return -1;
+        }
+        
+        if(root==target){
+            lowert(target,k);
+            return 0; // distance of target from itself
+        }
+        
+        int utl = uppert(root->left,target,k);  
+        if(utl!=-1){
+		    // if target is in left
+            // 2 cases:
+            // if ancestor is the node at k distance from target
+            // else find the kth node in right child of ancestor
+            
+            if(utl+1==k){   // if ancestor is the kth node
+                ans.push_back(root->val);
+            }
+            else{
+                lowert(root->right,k-2-utl);  // find kth node in th right of ancestor
+            }
+            
+            return 1+utl;  // return distance to previous node recursively
+        }
+        
+        int utr = uppert(root->right,target,k); // if node is in right
+        if(utr!=-1){
+            // 2 cases:
+            // if ancestor is the node at k distance from target
+            // else find the kth node in left child of ancestor
+            
+            if(utr+1==k){
+                ans.push_back(root->val); // if ancestor is the kth node
+            }
+            else{
+                lowert(root->left,k-2-utr);  // find kth node in th left of ancestor
+            }
+            return 1+utr;  // return distance to previous node recursively
+        } 
+        
+        return -1; // if node not found
+    }
+public:
+    vector<int> distanceK(TreeNode* root, TreeNode* target, int k) {
+        uppert(root,target,k);
+        return ans;
+    }
+};
+```
