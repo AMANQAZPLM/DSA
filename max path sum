@@ -1,0 +1,46 @@
+# Binary Tree Maximum Path Sum
+A **path** in a binary tree is a sequence of nodes where each pair of adjacent nodes in the sequence has an edge connecting them. A node can only appear in the sequence **at most once**. Note that the path does not need to pass through the root.
+The **path sum** of a path is the sum of the node's values in the path.
+Given the `root` of a binary tree, return _the maximum **path sum** of any **non-empty** path_.
+
+**Input:** root = [1,2,3]
+**Output:** 6
+**Explanation:** The optimal path is 2 -> 1 -> 3 with a path sum of 2 + 1 + 3 = 6.
+
+## Solution:
+There can be different cases for maximum:
+ - root
+ - left
+ - right
+ - root+left
+ - root+right
+ - left+root+right
+We need to compare all these cases for max.
+If root = NULL return 0;
+This function will return max path sum till the current node
+
+```cpp
+class Solution {
+    int mps(TreeNode* root,int &res){
+        if(root==NULL){
+            return 0;
+        }
+
+        int left = mps(root->left,res);
+        int right = mps(root->right,res);
+        
+        int c1 = max(root->val + max(left,right),root->val);
+        int c2 = max(c1,root->val+left+right);
+
+        res = max(res,c2);
+
+        return c1; // we return c1 because c2 is a complete path hence does not contribute to the upper nodes
+    }
+public:
+    int maxPathSum(TreeNode* root) {
+        int res = INT_MIN;
+        mps(root,res);
+        return res;
+    }
+};
+```
